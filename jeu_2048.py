@@ -91,7 +91,7 @@ for line in range(len(puissances)):
 def display_game():
     for line in range(len(puissances)):
         for col in range(len(puissances[line])):
-            cases[line][col].config(frame_tableau, text=puissances[line][col],bg=colors[puissances[line][col]])
+            cases[line][col].config(frame_tableau, text=2**puissances[line][col],bg=colors[puissances[line][col]])
     return
 
 
