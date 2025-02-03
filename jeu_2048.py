@@ -1,13 +1,20 @@
 from tkinter import *
 
+def pack_4(a,b,c,d):
+    moves = 0
+
+
+    return a,b,c,d,moves
+
 root = Tk()
 root.title("2048")
-root.geometry("600x600")
+root.geometry("600x700")
 
 puissances = [
-    [1,2,3,4],
+    [0,0,1,0],
     [5,6,7,8],
     [9,10,11,12],
+    [0,0,0,0],
 ]
 
 """
@@ -26,6 +33,7 @@ cases = [
 ]
 
 colors = {
+    0 : '#FFFFFF',
     1 : '#FFCCFF',
     2 : '#FF99FF',
     3 : '#FF66FF',
@@ -38,6 +46,8 @@ colors = {
     10 :'#7F00FF',
     11 :'#6600CC',
     12 :'#000000',
+
+
 }
 
 # frames
