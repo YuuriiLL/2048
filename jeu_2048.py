@@ -1,53 +1,97 @@
+# Nom du programme : jeu_2048
+# Auteur : Yuri Lima.
+# Date : 10.02.2025
+
 from tkinter import *
+import random
 
-def pack_4(a,b,c,d):
+def spawn_tile():
+    # Choisir une position vide (0) pour ajouter une nouvelle tuile
+    empty_positions = []
+    for i in range(4):
+        for j in range(4):
+            if puissances[i][j] == 0:
+                empty_positions.append((i, j))
+    if empty_positions:
+        i, j = random.choice(empty_positions)
+        puissances[i][j] = random.choice([2, 4])
+
+def pack_4(a, b, c, d, reverse=False):
     moves = 0
+    if reverse:
+        a, b, c, d = d, c, b, a  # Inverser pour gérer droite/bas avec la même logique
 
+    # Déplacement des tuiles vers la gauche (ou vers le haut si colonne)
+    if a == 0:
+        a, b, c, d = b, c, d, 0
+        moves += 1
+    if b == 0:
+        b, c, d = c, d, 0
+        moves += 1
+    if c == 0:
+        c, d = d, 0
+        moves += 1
 
-    return a,b,c,d,moves
+    # Fusion des tuiles identiques
+    if a == b and a != 0:
+        a, b, c, d = a * 2, c, d, 0
+        moves += 1
+    if b == c and b != 0:
+        b, c, d = b * 2, d, 0
+        moves += 1
+    if c == d and c != 0:
+        c, d = c * 2, 0
+        moves += 1
+
+    # Déplacer à nouveau après la fusion
+    if a == 0:
+        a, b, c, d = b, c, d, 0
+        moves += 1
+    if b == 0:
+        b, c, d = c, d, 0
+        moves += 1
+    if c == 0:
+        c, d = d, 0
+        moves += 1
+
+    if reverse:
+        a, b, c, d = d, c, b, a  # Réinverser pour retrouver l'ordre initial
+
+    return a, b, c, d, moves
+
 
 root = Tk()
 root.title("2048")
 root.geometry("600x700")
 
+# Initialisation de la grille (une matrice de 4x4 avec des zéros)
 puissances = [
-    [0,0,1,0],
-    [5,6,7,8],
-    [9,10,11,12],
-    [0,0,0,0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
 ]
-
-"""
-puissances = [
-    [0,2,0,0],
-    [0,0,0,0],
-    [0,2,0,0],
-]
-"""
 
 cases = [
-    [None,None,None,None],
-    [None,None,None,None],
-    [None,None,None,None],
-    [None,None,None,None],
+    [None, None, None, None],
+    [None, None, None, None],
+    [None, None, None, None],
+    [None, None, None, None],
 ]
 
 colors = {
-    0 : '#FFFFFF',
-    1 : '#FFCCFF',
-    2 : '#FF99FF',
-    3 : '#FF66FF',
-    4 : '#FF33FF',
-    5 : '#FF00FF',
-    6 : '#CC00CC',
-    7 : '#990099',
-    8 : '#CC99FF',
-    9 : '#9933FF',
-    10 :'#7F00FF',
-    11 :'#6600CC',
-    12 :'#000000',
-
-
+    0: '#FFFFFF',
+    2: '#FFCCFF',
+    4: '#FF99FF',
+    8: '#FF66FF',
+    16: '#FF33FF',
+    32: '#FF00FF',
+    64: '#CC00CC',
+    128: '#990099',
+    256: '#CC99FF',
+    512: '#9933FF',
+    1024: '#7F00FF',
+    2048: '#6600CC',
 }
 
 # frames
@@ -85,25 +129,93 @@ lbl_score.pack(side=LEFT)
 lbl_top = Label(frame_top_record, text="TOP", font=("Arial", 8))
 lbl_top.pack()
 
-lbl_texte = Label(frame_texte, text="Glissez les chiffres et obtenez la tuile 2048", font=("Arial", 10))
+lbl_texte = Label(frame_texte, text="Glissez les chiffres et obten"
+                                    "ez la tuile 2048", font=("Arial", 10))
 lbl_texte.pack()
 
 # BUTTONS
-bt_new = Button(frame_button, text="New", width=10)
+bt_new = Button(frame_button, text="New", width=10, command=lambda: new_game())
 bt_new.pack(side=RIGHT, padx=35)
 
 # Placer les cases dans la frame_tableau
-for line in range(len(puissances)):
-    for col in range(len(puissances[line])):
-        cases[line][col] = Label(frame_tableau, text=2**puissances[line][col], bg=colors[puissances[line][col]], width=8, height=4, relief="solid", font=("Arial", 15), fg="White")
-        cases[line][col].grid(row=line, column=col, padx=10, pady=10)
-
 def display_game():
     for line in range(len(puissances)):
         for col in range(len(puissances[line])):
-            cases[line][col].config(frame_tableau, text=2**puissances[line][col],bg=colors[puissances[line][col]])
+            # Si les cases n'ont pas encore été créées, on les crée
+            if cases[line][col] is None:
+                cases[line][col] = Label(frame_tableau, text=puissances[line][col], bg=colors.get(puissances[line][col], '#FFFFFF'), width=8, height=4, relief="solid", font=("Arial", 15), fg="White")
+                cases[line][col].grid(row=line, column=col, padx=10, pady=10)
+            else:
+                cases[line][col].config(text=puissances[line][col], bg=colors.get(puissances[line][col], '#FFFFFF'))
     return
 
+def new_game():
+    global puissances
+    puissances = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ]
+    spawn_tile()
+    spawn_tile()
+    display_game()
 
+def move_left(event):
+    moved = False
+    for row in range(4):
+        a, b, c, d, moves = pack_4(*puissances[row], reverse=False)
+        if moves > 0:
+            moved = True
+        puissances[row] = [a, b, c, d]
+    if moved:
+        spawn_tile()
+    display_game()
+
+def move_right(event):
+    moved = False
+    for row in range(4):
+        a, b, c, d, moves = pack_4(*puissances[row], reverse=True)
+        if moves > 0:
+            moved = True
+        puissances[row] = [a, b, c, d]
+    if moved:
+        spawn_tile()
+    display_game()
+
+def move_up(event):
+    moved = False
+    for col in range(4):
+        col_values = [puissances[row][col] for row in range(4)]
+        a, b, c, d, moves = pack_4(*col_values, reverse=False)
+        if moves > 0:
+            moved = True
+        for row in range(4):
+            puissances[row][col] = [a, b, c, d][row]
+    if moved:
+        spawn_tile()
+    display_game()
+
+def move_down(event):
+    moved = False
+    for col in range(4):
+        col_values = [puissances[row][col] for row in range(4)]
+        a, b, c, d, moves = pack_4(*col_values, reverse=True)
+        if moves > 0:
+            moved = True
+        for row in range(4):
+            puissances[row][col] = [a, b, c, d][row]
+    if moved:
+        spawn_tile()
+    display_game()
+
+
+root.bind("<Left>", move_left)
+root.bind("<Right>", move_right)
+root.bind("<Down>", move_down)
+root.bind("<Up>", move_up)
+
+# Démarrer un nouveau jeu au lancement de l'application
+new_game()
 
 root.mainloop()
