@@ -181,7 +181,7 @@ def display_game():
     return
 
 def new_game():
-    global puissances
+    global puissances, win
     puissances = [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -191,8 +191,10 @@ def new_game():
     spawn_tile()
     spawn_tile()
     display_game()
+    win = False
 
 def move_left(event):
+    global win
     moved = False
     global cases
     for row in range(4):
@@ -211,7 +213,7 @@ def move_left(event):
 
 def move_right(event):
     moved = False
-    global cases
+    global cases, win
     for row in range(4):
         a, b, c, d, moves = pack_4(*puissances[row], reverse=True)
         if moves > 0:
@@ -228,7 +230,7 @@ def move_right(event):
 
 def move_up(event):
     moved = False
-    global cases
+    global cases, win
     for col in range(4):
         col_values = [puissances[row][col] for row in range(4)]
         a, b, c, d, moves = pack_4(*col_values, reverse=False)
@@ -248,7 +250,7 @@ def move_up(event):
 
 def move_down(event):
     moved = False
-    global cases
+    global cases, win
     for col in range(4):
         col_values = [puissances[row][col] for row in range(4)]
         a, b, c, d, moves = pack_4(*col_values, reverse=True)
