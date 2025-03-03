@@ -1,9 +1,40 @@
 # Nom du programme : jeu_2048
 # Auteur : Yuri Lima.
 # Date : 10.02.2025
-
+from itertools import count
 from tkinter import *
 import random
+from tkinter import messagebox
+
+win = False
+
+def is_win():
+    global win
+    for line in range(len(puissances)):
+        for col in range(len(puissances[line])):
+            if puissances[line][col] == 2048:  # Si une tuile "8" est trouvée
+                win = True
+                return True
+    return False
+
+def is_game_full():
+    for line in range(len(puissances)):
+        for col in range(len(puissances[line])):
+            if puissances[line][col] == 0 :
+                return False
+    return True
+
+def count_mergeable():
+    count = 0
+    for line in range(len(puissances)):
+        for col in range(len(puissances[line])-1):
+            if puissances[line][col] == puissances[line][col+1]:
+                count+=1
+    for col in range(len(puissances[0])):
+        for line in range(len(puissances)-1):
+            if puissances[line][col] == puissances[line+1][col]:
+                count+=1
+    return count
 
 def spawn_tile():
     # Choisir une position vide (0) pour ajouter une nouvelle tuile
@@ -19,7 +50,7 @@ def spawn_tile():
 def pack_4(a, b, c, d, reverse=False):
     moves = 0
     if reverse:
-        a, b, c, d = d, c, b, a  # Inverser pour gérer droite/bas avec la même logique
+        a, b, c, d = d, c, b, a  # Inverser pour gérer droite/bas
 
     # Déplacement des tuiles vers la gauche (ou vers le haut si colonne)
     if a == 0:
@@ -163,6 +194,7 @@ def new_game():
 
 def move_left(event):
     moved = False
+    global cases
     for row in range(4):
         a, b, c, d, moves = pack_4(*puissances[row], reverse=False)
         if moves > 0:
@@ -171,9 +203,15 @@ def move_left(event):
     if moved:
         spawn_tile()
     display_game()
+    if is_win() :
+        messagebox.showinfo("WINNER", "BRAVO MON GARS")
+        win = True
+    if is_game_full() and count_mergeable() == 0:
+        messagebox.showinfo("LOSER", "VOUS AVEZ PERDU, VEUILLEZ RECOMMENCER")
 
 def move_right(event):
     moved = False
+    global cases
     for row in range(4):
         a, b, c, d, moves = pack_4(*puissances[row], reverse=True)
         if moves > 0:
@@ -182,9 +220,15 @@ def move_right(event):
     if moved:
         spawn_tile()
     display_game()
+    if is_win():
+        messagebox.showinfo("WINNER", "BRAVO MON GARS")
+        win = True
+    if is_game_full() and count_mergeable() == 0:
+        messagebox.showinfo("LOSER", "VOUS AVEZ PERDU, VEUILLEZ RECOMMENCER")
 
 def move_up(event):
     moved = False
+    global cases
     for col in range(4):
         col_values = [puissances[row][col] for row in range(4)]
         a, b, c, d, moves = pack_4(*col_values, reverse=False)
@@ -195,9 +239,16 @@ def move_up(event):
     if moved:
         spawn_tile()
     display_game()
+    if is_win():
+        messagebox.showinfo("WINNER", "BRAVO MON GARS")
+        win = True
+    if is_game_full() and count_mergeable() == 0:
+        messagebox.showinfo("LOSER", "VOUS AVEZ PERDU, VEUILLEZ RECOMMENCER")
+
 
 def move_down(event):
     moved = False
+    global cases
     for col in range(4):
         col_values = [puissances[row][col] for row in range(4)]
         a, b, c, d, moves = pack_4(*col_values, reverse=True)
@@ -208,6 +259,11 @@ def move_down(event):
     if moved:
         spawn_tile()
     display_game()
+    if is_win():
+        messagebox.showinfo("WINNER", "BRAVO MON GARS")
+        win = True
+    if is_game_full() and count_mergeable() == 0:
+        messagebox.showinfo("LOSER", "VOUS AVEZ PERDU, VEUILLEZ RECOMMENCER")
 
 
 root.bind("<Left>", move_left)
